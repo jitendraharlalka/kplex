@@ -17,8 +17,7 @@ def load_graph(file_name):
         num_edges += 1
     
     graph_file.close()
-
-    
+ 
     graph = [set() for i in range(num_vertices+1)]  #+1 for 1 based indexing of vertices
     for e in edgelist:
         u,v = e
@@ -67,20 +66,23 @@ def get_kplex(graph, triangle, k):
 
         curr_plex.add(best_v)
         peripherals.remove(best_v)
-    
-    return curr_plex
+
+    return [list(curr_plex), list(peripherals)]
 
 #gets all the kplexes in the graph
 def get_all_kplex(graph, k):
     triangles = find_triangles(graph)
     kplexes = set()
+    peripherals = set()
     while len(triangles) > 0:
         t = triangles.pop()
-        kplex = list(get_kplex(graph, t, k))
+        [kplex, peripheral] = get_kplex(graph, t, k)
         kplex.sort()
+        peripheral.sort()
         kplex = tuple(kplex)
+        peripheral = tuple(peripheral)
         kplexes.add(kplex)
-
+        peripherals.add(peripheral)
         #here we remove triangles containing a vertex in the kplex to prevent duplicates
         #not sure what we should do about vertex belonging to multiple kplexes?
         #new_triangles = []
@@ -96,7 +98,7 @@ def get_all_kplex(graph, k):
         #triangles = new_triangles
 
     
-    return list(kplexes)
+    return [list(kplexes), list(peripherals)]
 
 #merges any kplexes with p percentage of common vertices 
 #common wrt what? combined vertices? min set?
@@ -122,7 +124,7 @@ def merge_kplexes1(kplexes, p):
     return final_list
 
 graph = load_graph(sys.argv[1])
-kplexes = get_all_kplex(graph, 2)
+kplexes, peripherals = get_all_kplex(graph, 2)
 kplex_merged = merge_kplexes1(kplexes[:], 0.5)
 kplexes.sort()
 kplex_merged.sort()
