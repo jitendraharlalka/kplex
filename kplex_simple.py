@@ -50,13 +50,10 @@ def find_triangles(graph):
 def get_kplex(graph, triangle, k):
     curr_plex = set(triangle)
     peripherals = set()
-    #print list(curr_plex)
     
     for v in curr_plex:
         peripherals |= graph[v]
     peripherals -= curr_plex
-    
-    #print list(peripherals)
 
     while True:
         n = len(curr_plex)+1    #+1 since we will be adding a peripheral vertex
@@ -73,11 +70,6 @@ def get_kplex(graph, triangle, k):
         peripherals.remove(best_v)
         curr_plex.add(best_v)
     
-    #print
-    #print list(curr_plex)
-    #print list(peripherals)
-    #print '------'
-    
     return [list(curr_plex), list(peripherals)]
 
 #gets all the kplexes in the graph
@@ -90,13 +82,9 @@ def get_all_kplex(graph, k):
         kplex.sort()
         peripheral.sort()
         kplex = tuple(kplex)
-        #peripheral = tuple(peripheral)
         kplexes.setdefault(kplex,set())
         kplexes[kplex]=kplexes[kplex].union(set(peripheral))
         
-        #kplexes[kplex]=list(set(kplexes[kplex]))
-        #kplexes.append(kplex)
-        #peripherals.append(peripheral)
         #here we remove triangles containing a vertex in the kplex to prevent duplicates
         #not sure what we should do about vertex belonging to multiple kplexes?
         #new_triangles = []
@@ -119,7 +107,7 @@ def merge_kplexes1(kplexes, p):
     mergedKplexes = OrderedDict()
     
     kplexCores=kplexes.keys()
-
+    
     while len(kplexCores) > 0:
         k1 = kplexCores.pop()
         p1 = kplexes[k1]
@@ -128,7 +116,6 @@ def merge_kplexes1(kplexes, p):
         usedCores = []
         usedPeriphery=[]
 
-        counter=0
         for k2 in kplexCores:
             k2_set = set(k2)
             p2 = kplexes[k2]
@@ -137,16 +124,9 @@ def merge_kplexes1(kplexes, p):
                 p1 |= p2
                 usedCores.append(k2)
                 usedPeriphery.append(p2)
-            counter+=1
-
 
         for k in usedCores:
-            del kplexes[k]
             kplexCores.remove(k)
-
-        
-        #for up in usedPeriphery:
-        #    peripherals.remove(up)
 
         p1 -= k1
         k1 = list(k1)
@@ -162,22 +142,7 @@ def merge_kplexes1(kplexes, p):
 
 graph = load_graph(sys.argv[1])
 kplexes = get_all_kplex(graph, 2)
-
-# temp=open('temp.txt','w')
-# for key in kplexes.keys():
-#     temp.write('Cores:\n')
-#     for v in key:
-#         temp.write(str(v)+' ')
-#     temp.write('\nPeripherals:\n')
-#     for v in kplexes[key]:
-#         temp.write(str(v)+' ')
-#     temp.write('\n------------\n')
-# temp.close()
-
 mergedKplexes = merge_kplexes1(kplexes, 0.5)
-# kplexes.sort()
-# cores_merged.sort()
-
 f = open("out.txt", 'w')
 for key in mergedKplexes.keys():
     f.write('Cores:\n')
